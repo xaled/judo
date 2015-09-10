@@ -28,18 +28,18 @@ The script create a random user, then copy the home directory of the profile "pe
 
 ###example:
 
- {
-    "randomuid": true,
-    "alwaysupdate": false,
-    "graphic": true,  --> accès à l'affichage graphique
-    "home_dirs": [
-       "Downloads"
-    ],
-    "name": "public",
-    "download_dir": "Downloads", --> dossier des téléchargements
-    "default_update": [".mozilla/firefox/9z58ish0.default/places.sqlite"],  --> fichier/dossier à mettre à jour (dans ce cas historique de la navigation)
-    "audio": true --> accès à la carte son
- }
+> {
+>    "randomuid": true,
+>    "alwaysupdate": false,
+>    "graphic": true,  --> accès à l'affichage graphique
+>    "home_dirs": [
+>       "Downloads"
+>    ],
+>    "name": "public",
+>    "download_dir": "Downloads", --> dossier des téléchargements
+>    "default_update": [".mozilla/firefox/9z58ish0.default/places.sqlite"],  --> fichier/dossier à mettre à jour (dans ce cas historique de la navigation)
+>    "audio": true --> accès à la carte son
+> }
 
  
 
