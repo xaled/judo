@@ -1,0 +1,12 @@
+{
+   "randomuid": true, 
+   "alwaysupdate": false, 
+   "graphic": true, 
+   "home_dirs": [
+      "Downloads"
+   ], 
+   "name": "firefox", 
+   "download_dir": "Downloads", 
+   "default_update": [], 
+   "audio": true
+}
