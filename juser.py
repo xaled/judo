@@ -205,7 +205,7 @@ def juserMain(cmd=DEFAULT_COMMAND, profilename=DEFAULT_PROFILE, update=False):
     profileconf,profiledir = getProfile(profilename)
     uid = generateRandomUID()
     saveUIDlock(uid)
-    #getSudoRight(uid)
+
     workpath = getWorkDir(profilename,uid)
     createUser(uid,workpath)
 
