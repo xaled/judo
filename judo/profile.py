@@ -1,6 +1,7 @@
 __author__ = 'xaled'
 from os.path import isdir, isfile, join
 from config import DEFAULT_PROFILE_CONF, RG_PROFILE,DEFAULT_PROFILE_DIR
+from frequentree.io import mkdirIfNotExist
 import json
 import logging
 
@@ -25,29 +26,42 @@ classes:
 def getAllProfiles(): # TODO: Get all Available profiles:
     """
     Get all available profiles in a profiledir
-        return: - list<Profiles>
-        throws: ProfileException in case of io error
+        :return: - list<Profiles>
+        :raises: ProfileException in case of io error
     """
     pass
 
 def saveProfile(profile_conf, profile_conf_file):
+    """
+    Save profile config to json file
+    :param profile_conf: profile config
+    :param profile_conf_file: otuput json file
+    :raises: IOError
+    """
     fou = open(profile_conf_file,"w")
     fou.write(json.dumps(profile_conf,indent=3))
     fou.close()
 
-def createProfile(profilename):
-    profile_home = os.path.join(JU_PROFILES_DIR, profilename)
-    profile_conf_file = os.path.join(JU_PROFILES_DIR,profilename+".json")
-    profile_conf = dict(DEFAULT_PROFILE_CONF)
+def createProfile(profilename, profile_template=DEFAULT_PROFILE_CONF):
+    """
+
+    :param profilename:
+    :param profile_template: template conf, defalt: judo.config.DEFAULT_PROFILE_CONF
+    :except:?
+    :raises:?
+    """
+    profile_home = join(DEFAULT_PROFILE_DIR, profilename)
+    profile_conf_file = join(DEFAULT_PROFILE_DIR,profilename+".json")
+    profile_conf = dict(profile_template)
     profile_conf['name']= profilename
     mkdirIfNotExist(profile_home)
     for d in profile_conf["home_dirs"]:
-        mkdirIfNotExist(os.path.join(profile_home,d))
+        mkdirIfNotExist(join(profile_home,d))
     saveProfile(profile_conf, profile_conf_file)
 
 
 def getProfile(profilename):
-    profile = getProfile(profilename)
+    profile = loadProfile(profilename)
     if profile == None:
         profile = createProfile(profilename)
 
@@ -55,20 +69,20 @@ def getProfile(profilename):
 
 
 
-def loadsProfile(profilename):
+def loadProfile(profilename):
     """
     loads profile from json file
     :param profilename: profile name:
     :return: - Profile instance
              - None in case profile not found
-    :throws:
+    :raises:
             - ValuerError: Profile name should be alphanumerical and less than 20 characters
             - IOError: Access error
     """
     if not RG_PROFILE.match(profilename):
         raise ValueError("Profile name should be alphanumerical and less than 20 characters",None)
-    profile_conf_file = join(profiledir, profilename + ".json")
-    profile_dir = join(profiledir,profilename)
+    profile_conf_file = join(DEFAULT_PROFILE_DIR, profilename + ".json")
+    profile_dir = join(DEFAULT_PROFILE_DIR,profilename)
     if isfile(profile_conf_file) and isdir(profile_dir):
         try:
             fin = open(profile_conf_file,"r")
@@ -104,7 +118,7 @@ class Profile:
 class ProfileException(Exception):
     """
     ProfileException class:
-        Gist: exception with message & cause
+        :Gist: exception with message & cause
     """
     def __init__(self, message, cause):
         super(ProfileException, self).__init__(message + ', caused by ' + repr(cause))
