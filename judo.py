@@ -29,7 +29,7 @@ DEFAULT_CMD = ""
 DEFAULT_PFL = ""
 
 def Main(cmd=DEFAULT_CMD, profile=DEFAULT_PFL, update=False): #other options
-    prfl=judo.profile.getProfile(profile)
+    prfl=judo.profile.getProfile(profile, args={"update":update})
     rn = judo.run.Run(prfl)
     rn.init()
     rn.execute()
