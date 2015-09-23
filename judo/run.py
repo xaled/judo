@@ -4,17 +4,28 @@ from profile import Profile
 
 
 class Run:
-    def __init__(self, profile, args):
+    def __init__(self, profile,cmd, args):
         """
 
         :param profile: Profile instance
+        :param cmd: command string list
         :param args: user arg vector
         """
         self.__profile = profile
         self.__args = args
+        self.__cmd = cmd
 
 
-    def init(self, config=None):
+    def init(self):
+        """
+        init the temp work environement:
+            1- check if the same profile is running, act according to profile/user/default option
+            2- create profile lock
+            3- create user
+            4- set permissions & jail environnement
+            5- prepare temp homedir: copy profile files, create some links, etc...
+
+        """
         if self.__is_profile_running():
             """
             #TODO
@@ -34,6 +45,14 @@ class Run:
 
 
     def execute(self):
+        """
+        execute command in under jailed user, using sudo
+        script:
+        cd $workpath; # if necessary
+        export HOME=$home
+        sudo -u ju$uid $cmd
+        cd $original # if necessary
+        """
         pass
 
     def clean(self):
