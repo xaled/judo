@@ -8,6 +8,11 @@ JU_DIR = os.path.join(os.getenv("HOME"),".judo")
 DEFAULT_PROFILE_CONF = {"randomuid":True, "graphic":True, "audio":True, "home_dirs":["Downloads"], "default_update":[], "download_dir":"Downloads", "alwaysupdate":False}
 RG_PROFILE = re.compile('^[a-z][a-z0-9_]{2,20}$',re.IGNORECASE|re.DOTALL)
 DEFAULT_PROFILE_DIR = os.path.join(JU_DIR, "profiles")
+DEFAULT_LOCK_DIR = os.path.join(JU_DIR, "locks")
+DEFAULT_UID_BASE = 8801
+JUSER_ROOT_DIR = "/var/judo/temphomes/"
+
+
 
 
 # a voir
@@ -20,7 +25,6 @@ JU_DOWNLOAD_DIR = os.path.join(JU_DIR, "downloads")
 DEFAULT_COMMAND = "firefox"
 DEFAULT_PROFILE = "default"
 
-UID_BASE = 8801
 RANDOM_STRING_CHARS = "abcdefghijklmnopqrstuvwxyz"
 RANDOM_STRING_LEN = 4
 RANDOM_STRING_PREFIX = 'ju_'

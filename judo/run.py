@@ -1,5 +1,6 @@
 __author__ = 'xaled'
 from profile import Profile
+from config import DEFAULT_LOCK_DIR, DEFAULT_UID_BASE, JUSER_ROOT_DIR
 from frequentree.os import executeCommand
 from frequentree.io import appendToTextFile, writeToTextFile, removeDir, copyDir
 #import os
@@ -49,7 +50,7 @@ class Run:
         self.__create_profile_lock()
         self.__create_user()
         self.__prepare_homedir()
-        self.__set_permissions()
+       # self.__set_permissions()
 
 
 
@@ -123,7 +124,7 @@ class Run:
         writeToTextFile(str(os.getpid()),uidlockfile)
         self.uid = uid
         randomdirname = "%s.%d.%d"%(profilename,uid,self.pid) + generateRandom() #  RANDOM_STRING_PREFIX+ ''.join(random.choice(RANDOM_STRING_CHARS) for i in range(RANDOM_STRING_LEN))
-        workdir = os.path.join(JUSER_ROOTDIR,randomdirname)
+        workdir = os.path.join(JUSER_ROOT_DIR,randomdirname)
         logger.info("generated random uid & workdir, uid={uid} workdir={workdir}",uid=uid, workdir=workdir)
         self.workdir = workdir
 
@@ -148,7 +149,7 @@ class Run:
         0- user permission over ju dirs + shares
         1- graphic permissions
         2- audio permissin
-        3- netpermission
+        3- net permission
         :return:
         """
 
