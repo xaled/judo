@@ -20,6 +20,8 @@ class Run:
         :param args: user arg vector
         """
         self.profile = profile
+        self.__profilename = profile.profilename
+        self.__profileconf = profile.options
         self.args = args
         self.cmd = cmd
         self.pid = os.getpid()
@@ -145,13 +147,15 @@ class Run:
         executeCommand(cmd_vector)
 
     def __set_permissions(self):
-        """
-        0- user permission over ju dirs + shares
-        1- graphic permissions
-        2- audio permissin
-        3- net permission
-        :return:
-        """
+        groups = "judo"
+        if self.__profileconf['graphic']== True:
+            #os.system("/usr/bin/xhost '+si:localuser:#%d'"%(uid))
+            addXhostPermission(self.uid)
+            groups += ",judog"
+        if self.__profileconf['audio']==True:
+            groups += ",audio"
+        #os.system("sudo /usr/bin/ju_usermod %s %s"%(uid,groups))
+        usermod(uid, append_groups=groups)
 
 
     def __prepare_homedir(self):
@@ -161,7 +165,19 @@ class Run:
         """
         #TODO
         removeDir(self.workdir)
-        copyDir(self.__pr)
+        copyDir(self.__profiledir, self.workdir)
+        chownDir(self.workdir, self.uid)
+        createLink(DEFAULT_JUDO_SHARE, join(self.workdir,"judopub"),chown=self.uid, chmod="755")
+        mkdir(join(DEFAULT_JUDO_SHARE,os.path.basename(self.workdir)))#chown and chmod (share dir)
+        #facl(share, user1, "d:rwx")
+        for dir in updatable:
+            mkdir(join(DEFAULT_JUDO_DRIVES), dirname, chmod="700", chown=self.uid)
+            #check location
+            facl(dir, user1, "d:rwx")
+            createLink(dir, join(workdir, dirname))
+        __set_permissions()
+
+
         """
         rm workdir
         cp profiledir to workdir
