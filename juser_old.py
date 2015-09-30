@@ -121,6 +121,7 @@ def initWorkPath(uid,profiledir,homedir):
     #make and copy dir
 
     runCommand(uid,homedir,SCRIPT_INITWP + " " + homedir + " " + profiledir)
+    runCommand(uid,homedir,SCRIPT_INITWP + " " + homedir + " " + profiledir)
 
     #removing permissions on profiledir
     os.system("/bin/chmod go-rwx '%s'"%(profiledir))

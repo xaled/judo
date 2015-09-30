@@ -2,7 +2,7 @@ __author__ = 'xaled'
 from profile import Profile
 from config import DEFAULT_LOCK_DIR, DEFAULT_UID_BASE, JUSER_ROOT_DIR
 from frequentree.os import executeCommand
-from frequentree.io import appendToTextFile, writeToTextFile, removeDir, copyDir
+from frequentree.io import appendToTextFile, writeToTextFile, removeDir, copyDir, chownDir, mkdirIfNotExist, createLink
 #import os
 import logging, random, os
 from os.path import join, exists
@@ -126,6 +126,7 @@ class Run:
         writeToTextFile(str(os.getpid()),uidlockfile)
         self.uid = uid
         randomdirname = "%s.%d.%d"%(profilename,uid,self.pid) + generateRandom() #  RANDOM_STRING_PREFIX+ ''.join(random.choice(RANDOM_STRING_CHARS) for i in range(RANDOM_STRING_LEN))
+        self.__randomdirname = randomdirname
         workdir = os.path.join(JUSER_ROOT_DIR,randomdirname)
         logger.info("generated random uid & workdir, uid={uid} workdir={workdir}",uid=uid, workdir=workdir)
         self.workdir = workdir
@@ -160,22 +161,42 @@ class Run:
 
     def __prepare_homedir(self):
         """
-
+            1- copy profile dir to workdir + chown
+            2- create ju#UID share in judo/pub + perms
+            3- create link of judo/pub in workdir
+            4- create ju#UID drive dir in judo/drives + perms
+            5- for each updatable folder/file: attach to it drive (+perms)
         :return:
         """
         #TODO
+        #1-
         removeDir(self.workdir)
         copyDir(self.__profiledir, self.workdir)
-        chownDir(self.workdir, self.uid)
-        createLink(DEFAULT_JUDO_SHARE, join(self.workdir,"judopub"),chown=self.uid, chmod="755")
-        mkdir(join(DEFAULT_JUDO_SHARE,os.path.basename(self.workdir)))#chown and chmod (share dir)
+        chownDir(self.workdir,self.uid,self.uid)
+
+        #2-
+
+        self.__jusharedir = join(DEFAULT_JUDO_SHARE,self.__randomdirname)
+        mkdirIfNotExist(self.__jusharedir)#chown and chmod (share dir)
+        chownDir(self.__jusharedir,self.uid, self.uid, chmod="4777")
         #facl(share, user1, "d:rwx")
-        for dir in updatable:
-            mkdir(join(DEFAULT_JUDO_DRIVES), dirname, chmod="700", chown=self.uid)
-            #check location
-            facl(dir, user1, "d:rwx")
+
+        #3-
+        createLink(DEFAULT_JUDO_SHARE, join(self.workdir,"judopub"),chown=self.uid, chmod="755")
+
+
+        #4-
+        judriveroot = join(DEFAULT_JUDO_DRIVES, self.__randomdirname)
+        mkdirIfNotExist(judriveroot)
+        chownDir(judriveroot, 0, 0, chmod='aaa')
+        for ud in self.__profileconf['default_update']:
+            if os.path.isdir(ud):
+                dirname = os.path.basename(ud)
+                mkdirIfNotExist(join(DEFAULT_JUDO_DRIVES), dirname, chmod="700", chown=self.uid)
+                #check location
+            faclDirDefault(dir, user1, 'rwx')
             createLink(dir, join(workdir, dirname))
-        __set_permissions()
+        self.__set_permissions()
 
 
         """
