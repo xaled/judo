@@ -10,7 +10,10 @@ RG_PROFILE = re.compile('^[a-z][a-z0-9_]{2,20}$',re.IGNORECASE|re.DOTALL)
 DEFAULT_PROFILE_DIR = os.path.join(JU_DIR, "profiles")
 DEFAULT_LOCK_DIR = os.path.join(JU_DIR, "locks")
 DEFAULT_UID_BASE = 8801
-JUSER_ROOT_DIR = "/var/judo/temphomes/"
+JUSER_ROOT_DIR = "/var/judo"
+DEFAULT_JUSER_TEMPDIR_ROOT = os.path.join(JUSER_ROOT_DIR,"temphomes")
+DEFAULT_JUDO_SHARE = os.path.join(JUSER_ROOT_DIR,"pub")
+DEFAULT_JUDO_DRIVES = os.path.join(JUSER_ROOT_DIR,"drives")
 
 
 

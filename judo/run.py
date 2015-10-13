@@ -1,8 +1,9 @@
 __author__ = 'xaled'
 from profile import Profile
-from config import DEFAULT_LOCK_DIR, DEFAULT_UID_BASE, JUSER_ROOT_DIR
+from config import DEFAULT_LOCK_DIR, DEFAULT_UID_BASE, DEFAULT_JUSER_TEMPDIR_ROOT, DEFAULT_JUDO_SHARE, DEFAULT_JUDO_DRIVES
+from misc import  addXhostPermission,usermod
 from frequentree.os import executeCommand
-from frequentree.io import appendToTextFile, writeToTextFile, removeDir, copyDir, chownDir, mkdirIfNotExist, createLink
+from frequentree.io import appendToTextFile, writeToTextFile, removeDir, copyDir, chownDir, mkdirIfNotExist, createLink, setfacl
 #import os
 import logging, random, os
 from os.path import join, exists
@@ -127,7 +128,7 @@ class Run:
         self.uid = uid
         randomdirname = "%s.%d.%d"%(profilename,uid,self.pid) + generateRandom() #  RANDOM_STRING_PREFIX+ ''.join(random.choice(RANDOM_STRING_CHARS) for i in range(RANDOM_STRING_LEN))
         self.__randomdirname = randomdirname
-        workdir = os.path.join(JUSER_ROOT_DIR,randomdirname)
+        workdir = os.path.join(DEFAULT_JUSER_TEMPDIR_ROOT,randomdirname)
         logger.info("generated random uid & workdir, uid={uid} workdir={workdir}",uid=uid, workdir=workdir)
         self.workdir = workdir
 
@@ -156,7 +157,7 @@ class Run:
         if self.__profileconf['audio']==True:
             groups += ",audio"
         #os.system("sudo /usr/bin/ju_usermod %s %s"%(uid,groups))
-        usermod(uid, append_groups=groups)
+        usermod(self.uid,groups)
 
 
     def __prepare_homedir(self):
@@ -166,6 +167,7 @@ class Run:
             3- create link of judo/pub in workdir
             4- create ju#UID drive dir in judo/drives + perms
             5- for each updatable folder/file: attach to it drive (+perms)
+            6- TODO: remove permissions from /home & others....
         :return:
         """
         #TODO
@@ -177,9 +179,10 @@ class Run:
         #2-
 
         self.__jusharedir = join(DEFAULT_JUDO_SHARE,self.__randomdirname)
-        mkdirIfNotExist(self.__jusharedir)#chown and chmod (share dir)
-        chownDir(self.__jusharedir,self.uid, self.uid, chmod="4777")
-        #facl(share, user1, "d:rwx")
+        mkdirIfNotExist(self.__jusharedir)
+        chownDir(self.__jusharedir,self.uid, self.uid, chmod="4777")#4777=tmp dir?
+        setfacl(self.__jusharedir,user=self.__user,default=True,perms="rwx")
+
 
         #3-
         createLink(DEFAULT_JUDO_SHARE, join(self.workdir,"judopub"),chown=self.uid, chmod="755")
@@ -188,14 +191,15 @@ class Run:
         #4-
         judriveroot = join(DEFAULT_JUDO_DRIVES, self.__randomdirname)
         mkdirIfNotExist(judriveroot)
-        chownDir(judriveroot, 0, 0, chmod='aaa')
+        chownDir(judriveroot, 0, 0, chmod='771')
         for ud in self.__profileconf['default_update']:
             if os.path.isdir(ud):
                 dirname = os.path.basename(ud)
-                mkdirIfNotExist(join(DEFAULT_JUDO_DRIVES), dirname, chmod="700", chown=self.uid)
+                dirpath_= join(DEFAULT_JUDO_DRIVES, dirname)
+                mkdirIfNotExist(dirpath_, chmod="700", chown=self.uid)
                 #check location
-            faclDirDefault(dir, user1, 'rwx')
-            createLink(dir, join(workdir, dirname))
+            setfacl(dirpath_, user=self.__user, perms='rwx', default=True)
+            createLink(dirpath_, join(self.workdir, dirname))
         self.__set_permissions()
 
 
